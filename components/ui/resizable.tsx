@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { GripVerticalIcon } from "lucide-react";
-// @ts-ignore - module has no types or is not installed in this environment
 import * as ResizablePrimitive from "react-resizable-panels";
 
 import { cn } from "./utils";
