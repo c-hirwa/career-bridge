@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import { employerProfiles } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 
 export async function GET() {
@@ -11,7 +12,7 @@ export async function GET() {
     }
 
     const profile = await db.query.employerProfiles.findFirst({
-      where: (ep, { eq }) => eq(ep.userId, session.user.id),
+      where: eq(employerProfiles.userId, session.user.id),
     });
 
     if (!profile) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -50,7 +51,7 @@ export async function PATCH(req: Request) {
         description: description ?? undefined,
         logoUrl: logoUrl ?? undefined,
       })
-      .where((ep, { eq }) => eq(ep.userId, session.user.id))
+      .where(eq(employerProfiles.userId, session.user.id))
       .returning();
 
     return NextResponse.json({ success: true, profile: updated[0] });
