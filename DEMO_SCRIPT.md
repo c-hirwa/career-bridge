@@ -1,3 +1,53 @@
+# Demo Script — CareerBridge (6–7 minutes)
+
+Purpose: follow this script when recording your summative video (5–10 minutes). It's concise and maps directly to the assignment requirements.
+
+0. Opening (10s)
+- Greet and state your name and the project: “This is CareerBridge, a student–employer job platform.”
+
+1. System description (40s)
+- One-sentence: “CareerBridge is a web application that helps students find internships and entry-level jobs and helps employers post and manage job listings.”
+- Tech stack: Next.js (App Router), TypeScript, PostgreSQL, Drizzle ORM, NextAuth for auth.
+
+2. Problem statement (30s)
+- Describe the problem: Students struggle to find curated internship and entry-level roles, and employers need a lightweight way to collect early-career applicants.
+- Why it's a problem: fragmented platforms, poor discoverability, manual applicant tracking.
+
+3. Proposed solution (30s)
+- How CareerBridge fixes it: centralized listings, role-specific flows (student/employer), built-in applicant tracking, resume uploads, apply/save flows.
+
+4. Show how the prototype maps to the SRS (30s)
+- Actors: Student (browse/save/apply/upload resume), Employer (post/view applicants/delete job), System (authentication, persistence).
+- Processes: Post job → Application → Applicant appears in employer dashboard; Student upload resume → available in profile and visible to employer when applying.
+
+5. Live demo walkthrough (2:30–3:00)
+- Student flow (approx 1:15)
+  - Sign up / sign in as a student.
+  - Navigate to Student Dashboard → Browse Jobs. Show search/filter briefly.
+  - Click a job → Apply. Show application appears in Applications tab.
+  - Go to Profile → Upload Resume (show selecting file and success). Open uploaded resume link.
+
+- Employer flow (approx 1:15)
+  - Sign in as employer.
+  - Post a new job (fill required fields) and submit.
+  - Navigate to My Postings → Applicants for that job. Show the new applicant with profile/resume link.
+
+6. Demo validation & SRS alignment (30s)
+- Point to where requirements are satisfied: authentication, role flows, persistence, resume upload, applicant visibility.
+
+7. Closing (15s)
+- Summarize main points and remind viewers where to find the source code and how to run locally. End recording.
+
+Tips for recording
+- Use a quiet room and good mic. Record in 1080p if possible.
+- Disable browser extensions (Grammarly) during recording to avoid hydration warnings.
+- Practice once, follow the script, keep to time.
+
+Files referenced
+- README.md — quick setup & demo instructions
+- `POST /api/student/upload-resume` — resume upload endpoint
+
+Good luck — tell me if you want the script rewritten to match your exact narration style or timing.
 # CareerBridge - Demo Script & Walkthrough
 
 **Total Demo Time**: 6-7 minutes  
