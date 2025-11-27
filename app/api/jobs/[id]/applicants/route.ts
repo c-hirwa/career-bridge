@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { db } from '@/db';
 import { applications, studentProfiles } from '@/db/schema';
 import { eq, inArray } from 'drizzle-orm';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id: jobId } = params;
+    const { id: jobId } = await params;
 
     if (!jobId) {
       return NextResponse.json({ error: 'Job ID required' }, { status: 400 });
