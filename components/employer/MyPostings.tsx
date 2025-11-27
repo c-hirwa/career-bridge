@@ -5,6 +5,7 @@ import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Trash2, Edit, Eye } from 'lucide-react';
 import { Badge } from '../ui/badge';
+import { useState } from 'react';
 
 interface MyPostingsProps {
   jobs: Job[];
@@ -12,6 +13,29 @@ interface MyPostingsProps {
 }
 
 export function MyPostings({ jobs, onDeleteJob }: MyPostingsProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (jobId: string) => {
+    setDeletingId(jobId);
+    try {
+      const res = await fetch(`/api/jobs/${jobId}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        onDeleteJob(jobId);
+      } else {
+        console.error('Failed to delete job');
+        alert('Failed to delete job');
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Failed to delete job');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -44,7 +68,7 @@ export function MyPostings({ jobs, onDeleteJob }: MyPostingsProps) {
                     <p className="text-sm text-gray-700 mb-4 line-clamp-2">{job.description}</p>
                     
                     <div className="text-sm text-gray-500">
-                      Posted {job.postedDate} • 12 applicants
+                      Posted {job.postedDate}
                     </div>
                   </div>
 
@@ -61,10 +85,11 @@ export function MyPostings({ jobs, onDeleteJob }: MyPostingsProps) {
                       variant="destructive" 
                       size="sm" 
                       className="gap-2"
-                      onClick={() => onDeleteJob(job.id)}
+                      onClick={() => handleDelete(job.id)}
+                      disabled={deletingId === job.id}
                     >
                       <Trash2 className="w-4 h-4" />
-                      Delete
+                      {deletingId === job.id ? 'Deleting...' : 'Delete'}
                     </Button>
                   </div>
                 </div>

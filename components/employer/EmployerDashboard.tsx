@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { PostJob } from './PostJob';
+import EmployerProfileSettings from './EmployerProfileSettings';
 import { MyPostings } from './MyPostings';
 import { Applicants } from './Applicants';
 import { Job } from '../JobCard';
@@ -11,72 +12,81 @@ interface EmployerDashboardProps {
   onLogout?: () => void;
 }
 
-export function EmployerDashboard({ onLogout }: EmployerDashboardProps) {
-  const [postedJobs, setPostedJobs] = useState<Job[]>([
-    {
-      id: 'emp-1',
-      title: 'Software Engineering Intern',
-      company: 'My Company',
-      location: 'San Francisco, CA',
-      type: 'internship',
-      workMode: 'hybrid',
-      salary: '$25-30/hour',
-      description: 'Join our engineering team to work on cutting-edge web applications.',
-      requirements: ['Computer Science student', 'Knowledge of React/TypeScript'],
-      postedDate: '5 days ago',
-    },
-    {
-      id: 'emp-2',
-      title: 'Junior Product Manager',
-      company: 'My Company',
-      location: 'Remote',
-      type: 'entry-level',
-      workMode: 'remote',
-      salary: '$60,000-70,000/year',
-      description: 'Help manage product roadmap and work with cross-functional teams.',
-      requirements: ['Bachelor\'s degree', 'Strong communication skills'],
-      postedDate: '2 weeks ago',
-    },
-  ]);
+interface JobWithApplicants extends Job {
+  applicantCount?: number;
+}
 
-  const handlePostJob = (job: Omit<Job, 'id' | 'postedDate' | 'company'>) => {
-    const newJob: Job = {
-      ...job,
-      id: `emp-${Date.now()}`,
-      company: 'My Company',
-      postedDate: 'Just now',
-    };
-    setPostedJobs([newJob, ...postedJobs]);
+export function EmployerDashboard({ onLogout }: EmployerDashboardProps) {
+  const [postedJobs, setPostedJobs] = useState<JobWithApplicants[]>([]);
+  const [applicants, setApplicants] = useState<any[]>([]);
+
+  const fetchEmployerJobs = async () => {
+    try {
+      // Fetch all jobs
+      const jobsRes = await fetch('/api/jobs');
+      if (!jobsRes.ok) throw new Error('Failed to fetch jobs');
+      const allJobs: any[] = await jobsRes.json();
+
+      // Fetch applicants for each job
+      const applicantsByJob: { [key: string]: any[] } = {};
+      const allApplicants: any[] = [];
+
+      for (const job of allJobs) {
+        try {
+          const appRes = await fetch(`/api/jobs/${job.id}/applicants`);
+          if (appRes.ok) {
+            const jobApplicants = await appRes.json();
+            applicantsByJob[job.id] = jobApplicants;
+            allApplicants.push(...jobApplicants.map((a: any) => ({ ...a, jobId: job.id, jobTitle: job.title })));
+          }
+        } catch (e) {
+          // If endpoint doesn't exist yet, use empty array
+          applicantsByJob[job.id] = [];
+        }
+      }
+
+      const mapped: JobWithApplicants[] = allJobs.map((j: any) => ({
+        id: j.id,
+        title: j.title,
+        company: j.employer?.companyName || 'Your Company',
+        location: j.location,
+        type: j.type,
+        workMode: j.workMode,
+        salary: j.salary,
+        description: j.description,
+        requirements: j.requirements || [],
+        postedDate: new Date(j.createdAt).toLocaleDateString(),
+        applicantCount: applicantsByJob[j.id]?.length || 0,
+      }));
+
+      setPostedJobs(mapped);
+      setApplicants(allApplicants);
+    } catch (err) {
+      console.error('Failed to load employer jobs', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployerJobs();
+  }, []);
+
+  const handlePostJob = (job: Job) => {
+    setPostedJobs([job, ...postedJobs]);
+    fetchEmployerJobs();
   };
 
   const handleDeleteJob = (jobId: string) => {
     setPostedJobs(postedJobs.filter(job => job.id !== jobId));
+    setApplicants(applicants.filter(app => app.jobId !== jobId));
   };
 
-  // Mock applicants data
   const mockApplicants = postedJobs.map(job => ({
     jobId: job.id,
     jobTitle: job.title,
-    applicants: [
-      {
-        id: '1',
-        name: 'John Smith',
-        email: 'john.smith@university.edu',
-        university: 'Stanford University',
-        major: 'Computer Science',
-        gpa: '3.8',
-        appliedDate: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-      },
-      {
-        id: '2',
-        name: 'Sarah Johnson',
-        email: 'sarah.j@university.edu',
-        university: 'MIT',
-        major: 'Software Engineering',
-        gpa: '3.9',
-        appliedDate: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-      },
-    ],
+    applicants: applicants.filter(a => a.jobId === job.id).map(a => ({
+      ...a,
+      appliedDate: new Date(a.createdAt).toLocaleDateString(),
+    })),
   }));
 
   return (
@@ -88,10 +98,11 @@ export function EmployerDashboard({ onLogout }: EmployerDashboardProps) {
         </div>
 
         <Tabs defaultValue="postings" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="postings">My Postings ({postedJobs.length})</TabsTrigger>
-            <TabsTrigger value="applicants">Applicants</TabsTrigger>
+            <TabsTrigger value="applicants">Applicants ({applicants.length})</TabsTrigger>
             <TabsTrigger value="post">Post New Job</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
           <TabsContent value="postings">
@@ -104,6 +115,13 @@ export function EmployerDashboard({ onLogout }: EmployerDashboardProps) {
 
           <TabsContent value="post">
             <PostJob onPostJob={handlePostJob} />
+          </TabsContent>
+
+          <TabsContent value="profile">
+            <div className="pt-4">
+              <h2 className="text-xl font-semibold mb-4">Company Profile</h2>
+              <EmployerProfileSettings />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

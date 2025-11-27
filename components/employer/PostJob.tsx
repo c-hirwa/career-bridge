@@ -28,8 +28,7 @@ export function PostJob({ onPostJob }: PostJobProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const job: Omit<Job, 'id' | 'postedDate' | 'company'> = {
+    const payload = {
       title: formData.title,
       location: formData.location,
       type: formData.type,
@@ -39,7 +38,36 @@ export function PostJob({ onPostJob }: PostJobProps) {
       requirements: formData.requirements.split('\n').filter(req => req.trim()),
     };
 
-    onPostJob(job);
+    // POST to API to create job (authenticated)
+    fetch('/api/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => res.json())
+      .then((data) => {
+        if (data?.success && data.job) {
+          // Map API job shape to client Job type
+          const returned = data.job;
+          const newJob: Job = {
+            id: returned.id,
+            title: returned.title,
+            company: returned.employer?.companyName || 'Your Company',
+            location: returned.location,
+            type: returned.type,
+            workMode: returned.workMode,
+            salary: returned.salary,
+            description: returned.description,
+            requirements: returned.requirements || [],
+            postedDate: 'Just now',
+          };
+
+          onPostJob(newJob);
+        } else {
+          console.error('Failed to post job', data);
+        }
+      })
+      .catch(err => console.error('Error posting job', err));
     setSubmitted(true);
     
     // Reset form after 2 seconds
