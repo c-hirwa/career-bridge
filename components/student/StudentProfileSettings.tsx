@@ -10,6 +10,7 @@ export default function StudentProfileSettings() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>({});
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetch('/api/student/profile')
@@ -38,6 +39,47 @@ export default function StudentProfileSettings() {
     setSaving(false);
   };
 
+  const handleUpload = async (file?: File | null) => {
+    const f = file;
+    if (!f) return;
+    setUploading(true);
+    try {
+      // Read file as Data URL and extract base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const result = reader.result as string | null;
+        if (!result) {
+          setUploading(false);
+          return;
+        }
+        const base64 = result.split(',')[1];
+
+        const res = await fetch('/api/student/upload-resume', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName: f.name, content: base64 }),
+        });
+
+        const data = await res.json();
+        if (data?.success && data.url) {
+          // Update local profile state and persist via PATCH
+          setProfile((p: any) => ({ ...p, resumeUrl: data.url }));
+        } else {
+          console.error('Upload failed', data);
+        }
+        setUploading(false);
+      };
+      reader.onerror = (err) => {
+        console.error('File read error', err);
+        setUploading(false);
+      };
+      reader.readAsDataURL(f);
+    } catch (e) {
+      console.error(e);
+      setUploading(false);
+    }
+  };
+
   if (loading) return <div>Loading profile...</div>;
 
   return (
@@ -63,7 +105,27 @@ export default function StudentProfileSettings() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save Profile'}</Button>
+        <Button onClick={handleSave} disabled={saving || uploading}>{(saving || uploading) ? 'Saving...' : 'Save Profile'}</Button>
+      </div>
+
+      <div className="pt-4">
+        <Label htmlFor="resume">Resume (PDF)</Label>
+        {profile.resumeUrl ? (
+          <div className="mb-2">
+            <a className="text-sm text-sky-600 underline" href={profile.resumeUrl} target="_blank" rel="noreferrer">View uploaded resume</a>
+          </div>
+        ) : (
+          <div className="mb-2 text-sm text-gray-600">No resume uploaded yet.</div>
+        )}
+
+        <input
+          id="resume"
+          type="file"
+          accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          onChange={e => handleUpload(e.target.files?.[0] ?? null)}
+          className="block"
+        />
+        <div className="text-xs text-gray-500 mt-1">Accepted: PDF, DOC, DOCX. Max file size: 2MB.</div>
       </div>
     </div>
   );
