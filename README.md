@@ -1,15 +1,15 @@
 # 🎓 CareerBridge - Student Job Platform
 
-## Overview
-
-CareerBridge simplifies the job search process for students and the hiring process for employers. Students can browse opportunities, save jobs, and apply with a single click. Employers can post positions, review applicants, and manage their job listings through an intuitive dashboard.
-
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen)](.)
 [![Node.js](https://img.shields.io/badge/node-18%2B-green)](.)
 [![Next.js](https://img.shields.io/badge/next.js-16-black)](https://nextjs.org)
 [![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL-blue)](.)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+
+## Overview
+
+CareerBridge simplifies the job search process for students and the hiring process for employers. Students can browse opportunities, save jobs, and apply with a single click. Employers can post positions, review applicants, and manage their job listings through an intuitive dashboard.
 
 ## Features
 
@@ -168,10 +168,6 @@ npx vercel
 ```
 
 Add environment variables in your hosting platform. For production, use a cloud database like Vercel Postgres, Neon, or Supabase.
-
-## License
-
-MIT
 
 ---
 
