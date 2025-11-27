@@ -8,7 +8,7 @@ import { Applicants } from './Applicants';
 import { Job } from '../JobCard';
 
 interface EmployerDashboardProps {
-  onLogout: () => void;
+  onLogout?: () => void;
 }
 
 export function EmployerDashboard({ onLogout }: EmployerDashboardProps) {

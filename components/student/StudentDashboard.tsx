@@ -10,7 +10,7 @@ import { mockJobs } from '../../data/mockJobs';
 import { Job } from '../JobCard';
 
 interface StudentDashboardProps {
-  onLogout: () => void;
+  onLogout?: () => void;
 }
 
 export function StudentDashboard({ onLogout }: StudentDashboardProps) {
