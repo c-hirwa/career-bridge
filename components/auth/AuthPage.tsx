@@ -17,7 +17,16 @@ export function AuthPage() {
   const [isPending, startTransition] = useTransition();
   const [userType, setUserType] = useState<'student' | 'employer'>('student');
   const router = useRouter();
+  
+  type AuthResult = { error?: string; success?: boolean; [k: string]: unknown };
 
+  const getErrorFrom = (res: unknown): string | undefined => {
+    if (res && typeof res === 'object') {
+      const maybe = (res as Record<string, unknown>)['error'];
+      if (typeof maybe === 'string' && maybe.length > 0) return maybe;
+    }
+    return undefined;
+  };
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-4xl">
@@ -56,15 +65,12 @@ export function AuthPage() {
                         const email = formData.get('email') as string;
                         const password = formData.get('password') as string;
 
-                        const res = await signIn('credentials', {
-                          redirect: false,
-                          email,
-                          password,
-                          role: 'student',
-                        } as any);
+                        const signInOptions = { redirect: false, email, password, role: 'student' } as unknown as Record<string, unknown>;
+                        const res = await signIn('credentials', signInOptions) as unknown;
 
-                        if ((res as any)?.error) {
-                          setMessage('Sign in failed: ' + (res as any).error);
+                        const signInError = getErrorFrom(res);
+                        if (signInError) {
+                          setMessage('Sign in failed: ' + signInError);
                           return;
                         }
 
@@ -110,15 +116,12 @@ export function AuthPage() {
                         const email = formData.get('email') as string;
                         const password = formData.get('password') as string;
 
-                        const res = await signIn('credentials', {
-                          redirect: false,
-                          email,
-                          password,
-                          role: 'employer',
-                        } as any);
+                        const signInOptions = { redirect: false, email, password, role: 'employer' } as unknown as Record<string, unknown>;
+                        const res = await signIn('credentials', signInOptions) as unknown;
 
-                        if ((res as any)?.error) {
-                          setMessage('Sign in failed: ' + (res as any).error);
+                        const signInError = getErrorFrom(res);
+                        if (signInError) {
+                          setMessage('Sign in failed: ' + signInError);
                           return;
                         }
 
@@ -165,10 +168,11 @@ export function AuthPage() {
                         const formData = new FormData(form);
                         formData.set('role', 'student');
 
-                        const res = await signUpAction(formData);
+                        const res = await signUpAction(formData) as unknown;
 
-                        if ((res as any)?.error) {
-                          setMessage('Sign up failed: ' + (res as any).error);
+                        const signUpError = getErrorFrom(res);
+                        if (signUpError) {
+                          setMessage('Sign up failed: ' + signUpError);
                           return;
                         }
 
@@ -176,15 +180,12 @@ export function AuthPage() {
                         const email = formData.get('email') as string;
                         const password = formData.get('password') as string;
 
-                        const signInRes = await signIn('credentials', {
-                          redirect: false,
-                          email,
-                          password,
-                          role: 'student',
-                        } as any);
+                        const signInOptions = { redirect: false, email, password, role: 'student' } as unknown as Record<string, unknown>;
+                        const signInRes = await signIn('credentials', signInOptions) as unknown;
 
-                        if ((signInRes as any)?.error) {
-                          setMessage('Account created, but sign-in failed: ' + (signInRes as any).error);
+                        const signInError = getErrorFrom(signInRes);
+                        if (signInError) {
+                          setMessage('Account created, but sign-in failed: ' + signInError);
                           return;
                         }
 
@@ -196,11 +197,11 @@ export function AuthPage() {
                     <input type="hidden" name="role" value="student" />
                     <div className="space-y-2">
                       <Label htmlFor="student-signup-name">Full Name</Label>
-                      <Input id="student-signup-name" name="fullName" placeholder="John Doe" required />
+                      <Input id="student-signup-name" name="fullName" placeholder="Chris Hirwa" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="student-signup-email">Email</Label>
-                      <Input id="student-signup-email" name="email" type="email" placeholder="student@university.edu" required />
+                      <Input id="student-signup-email" name="email" type="email" placeholder="student@alustudent.com" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="student-signup-university">University</Label>
@@ -237,8 +238,9 @@ export function AuthPage() {
 
                         const res = await signUpAction(formData);
 
-                        if ((res as any)?.error) {
-                          setMessage('Sign up failed: ' + (res as any).error);
+                        const signUpError = getErrorFrom(res);
+                        if (signUpError) {
+                          setMessage('Sign up failed: ' + signUpError);
                           return;
                         }
 
@@ -246,15 +248,12 @@ export function AuthPage() {
                         const email = formData.get('email') as string;
                         const password = formData.get('password') as string;
 
-                        const signInRes = await signIn('credentials', {
-                          redirect: false,
-                          email,
-                          password,
-                          role: 'employer',
-                        } as any);
+                        const signInOptions = { redirect: false, email, password, role: 'employer' } as unknown as Record<string, unknown>;
+                        const signInRes = await signIn('credentials', signInOptions) as unknown;
 
-                        if ((signInRes as any)?.error) {
-                          setMessage('Account created, but sign-in failed: ' + (signInRes as any).error);
+                        const signInError = getErrorFrom(signInRes);
+                        if (signInError) {
+                          setMessage('Account created, but sign-in failed: ' + signInError);
                           return;
                         }
 
