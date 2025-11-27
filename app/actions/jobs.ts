@@ -2,6 +2,7 @@
 
 import { db } from '@/db';
 import { jobs, applications, savedJobs } from '@/db/schema';
+import type { InferModel } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { eq, and } from 'drizzle-orm';
@@ -22,21 +23,42 @@ export async function createJobAction(formData: FormData) {
   const workMode = formData.get('workMode') as string | null;
   const salary = formData.get('salary') as string | null;
 
+  // Validate required fields
   if (!title || !description || !location || !type || !workMode) {
     return { error: 'Missing fields' };
   }
 
+  // Validate and coerce enums for Drizzle types
+  const allowedTypes = ['internship', 'entry-level'] as const;
+  const allowedWorkModes = ['remote', 'onsite', 'hybrid'] as const;
+
+  function isAllowed<T extends readonly string[]>(arr: T, v: unknown): v is T[number] {
+    return typeof v === 'string' && (arr as readonly string[]).includes(v);
+  }
+
+  if (!isAllowed(allowedTypes, type)) {
+    return { error: 'Invalid job type' };
+  }
+  if (!isAllowed(allowedWorkModes, workMode)) {
+    return { error: 'Invalid work mode' };
+  }
+
+  const jobType = type as typeof allowedTypes[number];
+  const jobWorkMode = workMode as typeof allowedWorkModes[number];
+
   try {
-    const [inserted] = await db.insert(jobs).values({
+    const payload: InferModel<typeof jobs, 'insert'> = {
       employerId: session.user.profileId,
       title,
       description,
       requirements,
       location,
-      type,
-      workMode,
+      type: jobType,
+      workMode: jobWorkMode,
       salary: salary || undefined,
-    }).returning();
+    };
+
+    const [inserted] = await db.insert(jobs).values(payload).returning();
 
     // Revalidate student dashboard path so server cache updates
     try { revalidatePath('/student/dashboard'); } catch (e) {}
