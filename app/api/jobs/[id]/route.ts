@@ -1,18 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { db } from '@/db';
 import { jobs } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { eq } from 'drizzle-orm';
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
     if (!session?.user || session.user.role !== 'employer') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: jobId } = params;
+    const { id: jobId } = await params;
     if (!jobId) {
       return NextResponse.json({ error: 'Job ID required' }, { status: 400 });
     }
