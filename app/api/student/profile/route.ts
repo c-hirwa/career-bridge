@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import { studentProfiles } from '@/db/schema';
 import { auth } from '@/lib/auth';
+import { eq } from 'drizzle-orm';
 
 export async function GET() {
   try {
@@ -11,7 +12,7 @@ export async function GET() {
     }
 
     const profile = await db.query.studentProfiles.findFirst({
-      where: (sp, { eq }) => eq(sp.userId, session.user.id),
+      where: eq(studentProfiles.userId, session.user.id),
     });
 
     if (!profile) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -52,7 +53,7 @@ export async function PATCH(req: Request) {
         bio: bio ?? undefined,
         resumeUrl: resumeUrl ?? undefined,
       })
-      .where((sp, { eq }) => eq(sp.userId, session.user.id))
+      .where(eq(studentProfiles.userId, session.user.id))
       .returning();
 
     return NextResponse.json({ success: true, profile: updated[0] });
