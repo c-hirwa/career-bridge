@@ -1,6 +1,59 @@
-# Demo Script — CareerBridge (6–7 minutes)
+# CareerBridge Demo Script (5–10 minutes)
 
-Purpose: follow this script when recording your summative video (5–10 minutes). It's concise and maps directly to the assignment requirements.
+## Intro (0:00 – 0:30)
+"Hi, I'm [Name]. This is CareerBridge, a platform that connects students with internships and entry-level jobs, and employers with young talent. It's built with Next.js, React, TypeScript, PostgreSQL, and Drizzle ORM."
+
+## Problem & Solution (0:30 – 1:30)
+**Problem**: Students struggle to find verified opportunities; employers lack tools to manage early-career applications.
+
+**Solution**: CareerBridge provides role-based dashboards for both. Students can browse, search, save, and apply to jobs. Employers can post jobs and track applicants—everything persisted to PostgreSQL.
+
+## Demo Walkthrough (1:30 – 7:00)
+
+### Landing & Auth (1:30 – 2:30)
+- Show landing page
+- Sign up as Student (test creds) → fill in profile (university, major, GPA)
+- Highlight: NextAuth v5 authentication, Zod validation
+
+### Student Dashboard (2:30 – 4:30)
+- **Browse Jobs**: search, filter, see job details
+- **Apply**: click Apply → application saved to DB
+- **Save Job**: bookmark a job → appears in "Saved Jobs" tab
+- **Applications Tab**: track all applied jobs
+- **Profile**: update academic info, upload resume
+
+### Employer Dashboard (4:30 – 6:30)
+- Sign up as Employer (test creds) → company profile
+- **Post Job**: fill form (title, description, requirements, location, salary) → submit
+- **My Postings**: see all jobs posted
+- **View Applicants**: click a job → see applicant list (name, university, major, GPA, resume link)
+
+### Backend & Schema (6:30 – 7:00)
+- Open `db/schema.ts`: show normalized tables (users, student_profiles, employer_profiles, jobs, applications, saved_jobs)
+- Point to foreign key relationships
+- Mention: Drizzle ORM, type-safe queries, migrations
+
+## SRS Coverage (7:00 – 7:30)
+- ✅ Actors: Student (browse/apply/save), Employer (post/view applicants), System (auth/persistence)
+- ✅ Workflows: Job posting → search → apply → applicant tracking
+- ✅ Tech: Role-based auth, PostgreSQL, Next.js server actions, TypeScript throughout
+
+## Closing (7:30 – 8:00)
+"The app is production-ready, fully functional, and deployed. Code is on GitHub: [repo]. Follow README for local setup. Thanks for watching!"
+
+---
+
+## Quick Tips
+- Disable extensions (Grammarly) before recording
+- Practice once to hit timing
+- Record at 1080p, quiet room
+- Have test credentials ready
+
+---
+
+<!-- Old scripts archived below -->
+
+# ARCHIVED: Previous Demo Script (6–7 minutes)
 
 0. Opening (10s)
 - Greet and state your name and the project: “This is CareerBridge, a student–employer job platform.”
